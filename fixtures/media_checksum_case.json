@@ -1,0 +1,59 @@
+{
+  "case": "校验和不一致仍置可播",
+  "signboard": "signboard-13",
+  "path_decision": "jia_reject_ready",
+  "mutex_key": "媒资桥置可播互斥",
+  "description": "复现：媒资桥回传与素材台账校验和不一致时，旧桩仍把素材置为 ready，清单误判齐套，上屏花屏。甲口径：校验失败整笔拒写 ready，正式保持 draft。",
+  "asset_defaults": {
+    "kind": "image",
+    "duration_sec": 12,
+    "resolution": "1920x1080",
+    "owner": "writer"
+  },
+  "match_case": {
+    "code": "mc_match",
+    "title": "校验一致样片",
+    "checksum": "ck-good-c0ffee11",
+    "remote_checksum": "ck-good-c0ffee11",
+    "expect": {
+      "matched": true,
+      "status": "ready",
+      "checksum_status": "verified",
+      "playable": true
+    }
+  },
+  "mismatch_case": {
+    "code": "mc_bad",
+    "title": "校验和不一致仍置可播夹具",
+    "checksum": "ck-local-deadbeef",
+    "remote_checksum": "ck-remote-0badf00d",
+    "legacy_bug_initial_status": "ready",
+    "expect": {
+      "matched": false,
+      "status": "draft",
+      "checksum_status": "mismatch",
+      "playable": false,
+      "ready_formal_increment": 0
+    }
+  },
+  "unverified_ready_case": {
+    "code": "mc_fake_ready",
+    "title": "台账可播但未校验",
+    "checksum": "ck-unverified-1111",
+    "raw_status": "ready",
+    "raw_checksum_status": "unverified",
+    "expect": {
+      "playable": false,
+      "playlist_complete": false,
+      "fake_ready": true
+    }
+  },
+  "race_case": {
+    "rounds": 5,
+    "workers": 2,
+    "expect_winners": 1,
+    "expect_losers_busy": 1,
+    "loser_formal_rows": 0,
+    "pressure_entrypoint": "race_media_checksum"
+  }
+}

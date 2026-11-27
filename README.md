@@ -40,7 +40,41 @@ python scripts/count_loc.py
 
 ## 空桩
 
-- 远程推屏桥（`remote_push`）
-- 媒资中台桥接（`media_bridge`）
+- 远程推屏桥（`remote_push`）：固定返回 501。
+- 媒资中台桥接（`media_bridge`）：signboard-13 起**不再是空成功**，已补齐校验和校验后置可播。
 
-接口固定返回 501，题面可点名。
+## signboard-13「媒资桥校验校验和后才可播」
+
+正确性口径当日拍板并锁死为 **甲路径**（见 `docs/signboard-13-命运说明.md`），不与乙路径混用：
+
+- 媒资桥回传 `remote_checksum` 必须与素材台账校验和一致，才在**同一事务**内写
+  `media_verifications` 结果并把素材置 `ready / verified`。
+- 不一致或校验和缺失：整笔拒写 ready，同事务把素材压回/保持 `draft / mismatch`，
+  正式可播零增；该素材随后任何置可播（`PATCH /api/assets/{id}`、`POST /api/assets/{id}/ready`）
+  一律 409，直到重新校验一致。
+- 清单“可播齐套”由清单服务**联查** `assets.status + checksum_status + media_verifications`
+  判定（`complete / playable_count / fake_ready`），ready 但未核/核败的素材不再算齐套。
+- 媒资桥结果、素材状态、`audit_log`、`change_history` 同事务跨表落账（审计/历史写入支持并入调用方事务）。
+- 全局互斥名逐字为 **「媒资桥置可播互斥」**（`media_svc.MEDIA_LOCK_KEY`）：进程内非阻塞锁 +
+  SQLite `BEGIN IMMEDIATE` + `write_locks` 命名行锁（兼容 `/api/locks` 外部持锁）。
+  双会话争用恰一成一败，败方 409 且零正式落库。
+
+三轨红测（先全红复现缺口，再转绿）：
+
+```bash
+python -m pytest tests/feat_media_ck_red.py   # 轨道A：校验失败不得 ready
+python -m pytest tests/feat_media_pl_fake.py  # 轨道B：清单不得把未校验素材当齐套
+python -m pytest tests/feat_media_race.py     # 轨道C：命名互斥争用，败方零正式
+```
+
+压锁脚本（调用 `race_media_checksum`）：
+
+```bash
+python scripts/race_media_checksum.py 20      # 或 scripts/press_media_lock.py 20
+```
+
+主要接口：`POST /api/stubs/media_bridge`（近义 `/verify`、`/sync`，顶层 `/api/media/verify|check|bridge`）、
+`GET /api/stubs/media_bridge/results`、`POST /api/stubs/media_bridge/race-selftest`、
+`POST /api/assets/{id}/ready|verify|checksum`、`GET /api/playlists/{id}/readiness`。
+鉴权 `auth.py` 与库初始化 `db.py` 保持原样；新表结构由 `media_svc` 幂等自建。
+

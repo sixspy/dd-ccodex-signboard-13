@@ -93,3 +93,29 @@ th { color: var(--muted); font-weight: 600; }
   .rail { grid-auto-flow: column; overflow-x: auto; }
   .two-col { grid-template-columns: 1fr; }
 }
+
+/* ===== signboard-13 媒资校验和 ===== */
+.badge.ok { background: rgba(62,207,142,.18); color: var(--accent2); }
+.badge.muted { background: rgba(143,163,191,.16); color: var(--muted); }
+.badge.info { background: rgba(96,165,250,.16); color: #7cb0ff; }
+code.ck, .ck { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color: #cdd9ec; word-break: break-all; }
+.mini-input { padding: 6px 8px; font-size: 12px; min-width: 150px; background: #0d1828; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
+.row-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.row-actions button { padding: 5px 10px; font-size: 12px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 12px; }
+.filters button { padding: 6px 12px; font-size: 12px; }
+.filters button.on { border-color: var(--accent); color: var(--accent); }
+.verdict { margin: 10px 0; padding: 12px; border-radius: 10px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+.verdict.good { background: rgba(62,207,142,.12); border: 1px solid rgba(62,207,142,.4); }
+.verdict.bad { background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.45); }
+.verdict.lock { background: rgba(240,162,2,.12); border: 1px solid rgba(240,162,2,.45); }
+.subtable-wrap { padding: 6px 0 14px 18px; }
+.subtable-wrap table { font-size: 12.5px; }
+.lock-note { font-size: 12px; color: var(--warn, var(--accent)); margin: 6px 0 0; }
+.media-health { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; margin-top: 12px; }
+.media-health .cell { background: #0d1828; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.media-health .cell b { display: block; font-size: 22px; }
+.media-health .cell span { color: var(--muted); font-size: 12px; }
+.media-health .cell.bad b { color: var(--danger); }
+.media-health .cell.warn b { color: var(--accent); }
+.media-health .cell.good b { color: var(--accent2); }

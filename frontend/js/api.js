@@ -9,7 +9,10 @@ SB.api = async function(path, opts = {}) {
   try { data = text ? JSON.parse(text) : null; } catch (e) { data = { raw: text }; }
   if (!res.ok) {
     const msg = (data && (data.detail || data.message)) || res.statusText || "请求失败";
-    throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    const err = new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
   return data;
 };
